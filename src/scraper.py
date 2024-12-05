@@ -60,6 +60,37 @@ class LinkedinScraper:
         return result
 
 
+    def extract_linkedin_post(self):
+        
+        author_name = self.parser.xpath("//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//text()")
+        author_name = next(iter(author_name)).strip()
+
+        linkedin_url = self.parser.xpath("//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//@href")
+        linkedin_url = next(iter(linkedin_url)).strip()
+        cleaned_url = linkedin_url.split("?")[0]
+
+        bio = self.parser.xpath("//div[contains(@class, 'base-main-feed-card__entity-lockup')]//div[contains(@data-test-id, 'main-feed-activity-card__entity-lockup')]//p//text()")
+        bio = bio[1].strip()
+
+        post_content = self.parser.xpath("//div[contains(@class, 'attributed-text-segment-list__container')]//text()")
+        post_content = post_content
+
+        hashtags = self.parser.xpath('.//p[contains(@class, "attributed-text-segment-list__content") and not(contains(@class, "comment__text"))]//a[contains(text(), "#")]/text()')
+        category = hashtags[0] if hashtags else None
+        sub_category = ', '.join(hashtags[1:]) if len(hashtags) > 1 else None
+
+        return {
+            "author_name": author_name,
+            "linkedin_url": cleaned_url,
+            "bio": bio,
+            "post_content": post_content,
+            "hashtag": {
+                "category": category,
+                "sub_categeory": sub_category
+            }
+        }
+
+
     def extract_data(self):
         json_data = {}
 
@@ -84,7 +115,8 @@ class LinkedinScraper:
             elif content_type == "content_type_2":
                 pass
     
+        elif category == "posts":
+            return self.extract_linkedin_post()
         
-
 
         return json_data
