@@ -2,7 +2,7 @@ from scraper import LinkedinScraper
 import requests
 from lxml.html import fromstring
 
-url = "https://www.linkedin.com/posts/nehageo_internship-designintern-figma-activity-7222580242261979136-pAYx?utm_source=share&utm_medium=member_desktop"
+url = "https://www.linkedin.com/posts/poonam-soni-9255931b2_jobpreparation-remotejobs-websites-activity-7270398477816205312-o4ql?utm_source=share&utm_medium=member_desktop"
 
 response = requests.get(url)
 

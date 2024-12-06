@@ -62,20 +62,26 @@ class LinkedinScraper:
 
     def extract_linkedin_post(self):
         
-        author_name = self.parser.xpath("//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//text()")
-        author_name = next(iter(author_name)).strip()
+        author_name = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//text()")
+        author_name = ' '.join(author_name).strip() if author_name else None
 
-        linkedin_url = self.parser.xpath("//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//@href")
-        linkedin_url = next(iter(linkedin_url)).strip()
-        cleaned_url = linkedin_url.split("?")[0]
+        linkedin_url = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//a[contains(@data-tracking-control-name, 'public_post_feed-actor-name')]//@href")
+        linkedin_url = ' '.join(linkedin_url).strip()
+        cleaned_url = linkedin_url.split("?")[0] if linkedin_url else None
 
-        bio = self.parser.xpath("//div[contains(@class, 'base-main-feed-card__entity-lockup')]//div[contains(@data-test-id, 'main-feed-activity-card__entity-lockup')]//p//text()")
-        bio = bio[1].strip()
+        bio = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//div[contains(@data-test-id, 'main-feed-activity-card__entity-lockup')]//p//text()")
+        bio = ' '.join(bio).strip() if bio else None
 
-        post_content = self.parser.xpath("//div[contains(@class, 'attributed-text-segment-list__container')]//text()")
-        post_content = post_content
+        post_content = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//div[contains(@class, 'attributed-text-segment-list__container')]//p[not(contains(@class, 'comment__text'))]//text()")
+        post_content = ' '.join(post_content).strip() if post_content else None
 
-        hashtags = self.parser.xpath('.//p[contains(@class, "attributed-text-segment-list__content") and not(contains(@class, "comment__text"))]//a[contains(text(), "#")]/text()')
+        img_media = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//img[contains(@src, 'http')]/@src")
+        img_media = ", ".join(img_media).strip() if img_media else None
+
+        video_media = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//video[contains(@src, 'http')]/@src")
+        video_media = ' '.join(video_media).strip() if video_media else None
+
+        hashtags = self.parser.xpath("//article[contains(@class, 'main-feed-activity-card-with-comments')]//a[contains(text(), '#')]/text()")
         category = hashtags[0] if hashtags else None
         sub_category = ', '.join(hashtags[1:]) if len(hashtags) > 1 else None
 
@@ -84,7 +90,9 @@ class LinkedinScraper:
             "linkedin_url": cleaned_url,
             "bio": bio,
             "post_content": post_content,
-            "hashtag": {
+            "image_media": img_media,
+            "video_media": video_media,
+            "hashtags": {
                 "category": category,
                 "sub_categeory": sub_category
             }
